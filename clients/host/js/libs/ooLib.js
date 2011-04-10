@@ -42,7 +42,7 @@
 		 */
 		createDelegate: function (fn, scope) {
 			return function () {
-				fn.apply(scope, arguments);
+				return fn.apply(scope, arguments);
 			};
 		}
 	};
