@@ -1,0 +1,30 @@
+#popup-content {
+    display: none;
+}
+
+#main {
+    position: absolute;
+    z-index:1;
+}
+
+#mask {
+    position: absolute;
+    top:0;
+    left:0;
+    height: 100%;
+    width: 100%;
+    background-color: #ddd;
+    opacity: 0.6;
+    z-index:5;
+    display:none;
+}
+
+#popup {
+    width: 300px;
+    min-height: 200px;
+    padding:20px;
+    margin:0 auto;
+    background: #fff;
+    z-index:10;
+    display:none;    
+}
