@@ -22,17 +22,18 @@ var jsr = (function(ns, global) {
     };
     var p = Network.prototype;
     
-    Network.commands = {
-        ACCELERATE  : 'accelerate',     // game_id, player_id
-        BRAKE       : 'brake',          // game_id, player_id
-        TURN        : 'turn',           // game_id, player_id, angle
-        REQUEST     : 'request',        // game_id
-        
-        CREATE_GAME : 'create_game',    // game_name
-        KILL_GAME   : 'kill_game',      // game_id
-        GAME_OVER   : 'game_over',      // game_id, player_id
-        GAME_START  : 'game_start',     // game_id
-        CRASH       : 'crash'           // game_id, player_id
+    Network.commands = {                
+        ACCELERATE  : 'accelerate',      // gameId, playerId
+        BRAKE       : 'brake',           // gameId, playerId
+        TURN        : 'turn',            // gameId, playerId, angle
+        REQUEST     : 'request',         // gameId
+        LIST_GAME   : 'listgame',        
+                                        
+        CREATE_GAME : 'creategame',      // gameName
+        KILL_GAME   : 'killgame',        // gameId
+        GAME_OVER   : 'gameover',        // gameId, playerId
+        GAME_START  : 'gamestart',       // gameId
+        CRASH       : 'crash'            // gameId, playerId
     };
 
 	p._socketConnect  = function _socketConnect (url) {
@@ -89,5 +90,7 @@ var jsr = (function(ns, global) {
             this._socket.send(JSON.stringify(params));
         }
     };
+    
+    ns.Network = Network;
         
 })(jsr || {}, window);

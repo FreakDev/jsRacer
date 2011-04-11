@@ -44,6 +44,23 @@
 			return function () {
 				return fn.apply(scope, arguments);
 			};
+		},
+		
+		delay: function (fn, delay, scope) {
+		    
+		    scope = scope || global;
+		    
+		    if (typeof delay != 'Number') {
+		        scope = delay;
+		        delay = 10;
+		    }
+		    
+	        var args = arguments;
+	        
+	        setTimeout(function () {
+	            fn.apply(scope, args);
+	        }, delay);
+		    
 		}
 	};
     

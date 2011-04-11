@@ -3,16 +3,27 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <title>JS Racer</title>
+        <link rel="stylesheet" type="text/css" href="style.css">
         <script src="js/libs/easel.js"></script>
         <script src="js/libs/ooLib.js"></script>
+        <script src="js/network.js"></script>
         <script src="js/car.js"></script>
-        <script src="js/engine.js" /></script>
-        <script src="js/loader.js" /></script>
-        <script src="js/app.js" /></script>
+        <script src="js/engine.js"></script>
+        <script src="js/loader.js"></script>
+        <script src="js/app.js"></script>
     </head>
     <body>
-        <div>
+        <div id="main">
             <canvas id="race" width="600" height="400"></canvas>
         </div>
+        <div id="mask"></div>
+        <div id ="popup-content">
+            <div id ="form-game-name">
+                <h3>Game name ?</h3>
+                <input type="text" />
+                <input type="button" value="create">
+            </div>
+        </div>
+        <div id ="popup"></div>
     </body>
 </html>

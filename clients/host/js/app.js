@@ -1,8 +1,10 @@
-(function (global) {
+(function (jsr, global) {
 
     var l = new jsr.Loader;
     var e = new jsr.Engine;    
     var c;
+    var serverURL = 'ws://127.0.0.1:8000';
+    var nt;
         
     function main () {
 
@@ -13,10 +15,49 @@
                 name: 'redcar',
                 file: 'res/redcar-s.png'
             }],
-            onComplete: startGame
+            onComplete: envReady
         });
         
     };
+    
+    function envReady () {
+        
+        nt = new jsr.Network({url: serverURL});
+        
+        showPopUp('form-game-name');
+        
+        ooLib.delay(function () {
+            var btn = document.querySelector('#popup input[type=button]');
+            var input = document.querySelector('#popup input[type=text]');
+            btn.onclick = function () {
+                
+            };
+        });
+        
+        
+    }
+    
+    function showPopUp (popupName) {
+        
+        var domContent = document.querySelector("#" + popupName);
+        var domPopup = document.querySelector("#popup");
+        var domMask = document.querySelector("#mask");
+        
+        domPopup.innerHTML = domContent.innerHTML;
+        
+        //domMask.style.display = 'block';
+        domPopup.style.display = 'block';        
+    }
+    
+    function hidePopUp (popupName) {
+        
+        var domPopup = document.querySelector("#popup");
+        var domMask = document.querySelector("#mask");
+        
+        //domMask.style.display = 'none';
+        domPopup.style.display = 'none';
+        
+    }    
     
     function startGame () {
         e.init(c);
@@ -32,4 +73,4 @@
     
     global.onload = main;
         
-})(window);
+})(jsr, window);
