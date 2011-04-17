@@ -19,7 +19,8 @@ Network.commands = {
     KILL_GAME   : 'killgame',      // gameId
     GAME_OVER   : 'gameover',      // gameId, playerId
     GAME_START  : 'gamestart',     // gameId
-    CRASH       : 'crash'          // gameId, playerId
+    CRASH       : 'crash',         // gameId, playerId
+    ERROR       : 'error'    
 };
 
 var games = {};
@@ -43,12 +44,18 @@ p.isStarted = function isStarted () {
 
 var onMessage = function (conn, data) {
     var msg = JSON.parse(data);
-    
-    var callId = msg.id;
+        
     var method = msg.method;
-    delete msg.id; delete msg.method;
-    
-    server.emit(method, conn.id, msg);
+        
+    server.emit(method, conn, msg);
+};
+
+var sendMessage = function (message, conn) {
+    sys.log('send');
+    if (typeof conn != 'undefined') {
+        conn.send(JSON.stringify(message));
+    } else {
+    }
 };
 
 // Handle WebSocket Requests
@@ -73,18 +80,27 @@ server.addListener("error", function(conn) {
 
 
 // handle game specific request
-server.addListener(Network.CREATE_GAME, function (conn, opt) {
+server.addListener(Network.commands.CREATE_GAME, function (conn, opt) {
+    
+    callId = opt.id;
+    method = opt.method;    
+    opt = opt.args;
+    
     if (!opt.gameName) {
         sys.log("Error : no name given");
+        sendMessage({id: -1, method: Network.commands.ERROR, args: {message: "no name given"}}, conn);
+        return;
     }
     
     if (games[opt.gameName]) {
         sys.log("Error : a game with the same name already exists");
+        sendMessage({id: -1, method: Network.commands.ERROR, args: {message: "a game with the same name already exists"}}, conn);        
+        return;
     }
     
-    games[opt.gameName] = new Game (gameName, conn.id);
-    sys.log(opt.gameName);
-    
+    games[opt.gameName] = new Game (opt.gameName, conn.id);
+
+    sendMessage({id: callId, method: method, args: {}}, conn);
 });
 
 server.listen(8000);

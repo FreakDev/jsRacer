@@ -37,7 +37,7 @@ var jsr = (function(ns, global) {
     };
 
 	p._socketConnect  = function _socketConnect (url) {
-        this._socket = new Websocket(this._socketUrl);
+        this._socket = new WebSocket(this._socketUrl);
 	};
     
 	p._socketOpenHandler  = function _socketOpenHandler (e) {
@@ -69,7 +69,7 @@ var jsr = (function(ns, global) {
     
     p._initListeners = function _initListeners(listeners) {
         for (cmd in Network.commands) {
-            this._listerners[cmd] = listeners[cmd] || function () {};
+            this._listeners[cmd] = listeners[cmd] || function () {};
         }
     };
     

@@ -16,7 +16,7 @@ var jsr = (function (ns) {
     };
     var p = l.prototype;
     
-    p.load = function (config) {
+    p.load = function load (config) {
         if (typeof config.resources.length == 'undefined') { throw Error('resources is not defined'); }
         
         this.progressListener = config.onProgress || function () {};

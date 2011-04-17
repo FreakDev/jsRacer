@@ -12,13 +12,23 @@ var jsr = (function(ns, global) {
 	    this._socketOpen = false;
 	    this._socketUrl = options.url;
 	    this._socketConnect();
-    	this._socket.onopen = this._socketOpenHandler;
-    	this._socket.onclose = this._socketCloseHandler;
-    	this._socket.onerror = this._socketErrorHandler;
-    	this._socket.onmessage = this._socketMessageHandler;
 
-        
         this._initListeners(options.listeners || {});
+	    
+	    var isPhone = global.navigator.userAgent.match(/iPhone|Android/i) != null;
+	    
+	    if (isPhone) {
+        	this._socket.onopen = this._socketOpenHandler;
+        	this._socket.onclose = this._socketCloseHandler;
+        	this._socket.onerror = this._socketErrorHandler;
+        	this._socket.onmessage = this._socketMessageHandler;
+    	} else {
+            this._socket.addEventListener('open', ooLib.createDelegate(this._socketOpenHandler, this), true);
+            this._socket.addEventListener('error', ooLib.createDelegate(this._socketErrorHandler, this), true);
+            this._socket.addEventListener('message', ooLib.createDelegate(this._socketMessageHandler, this), true);
+            this._socket.addEventListener('close', ooLib.createDelegate(this._socketCloseHandler, this), true);      
+        }
+        
     };
     var p = Network.prototype;
     
@@ -33,7 +43,8 @@ var jsr = (function(ns, global) {
         KILL_GAME   : 'killgame',        // gameId
         GAME_OVER   : 'gameover',        // gameId, playerId
         GAME_START  : 'gamestart',       // gameId
-        CRASH       : 'crash'            // gameId, playerId
+        CRASH       : 'crash',           // gameId, playerId
+        ERROR       : 'error'            
     };
 
 	p._socketConnect  = function _socketConnect (url) {
@@ -54,24 +65,25 @@ var jsr = (function(ns, global) {
 	    alert('socket error');
 	};
 	
-	this._socketMessageHandler = function _socketMessageHandler (e) {
+	p._socketMessageHandler = function _socketMessageHandler (e) {
 	    var msg = JSON.parse(e.data);
 	    
 	    var callback = this._apiCalls[msg.id];
 	    var method = msg.method;
         delete msg.id; delete msg.method;
-	    if (callback) {
-	        if (!callback(msg)) {
+        if (callback) {
+	        if (!callback(msg.args)) {
 	            return;
 	        }
 	    }
 	    
-	    (this._listerners[method])(msg);
+	    console.log(this._listeners);
+	    this._listeners[method](msg.args);
 	};
     
     p._initListeners = function _initListeners(listeners) {
         for (var cmd in Network.commands) {
-            this._listeners[cmd] = listeners[cmd] || function () {};
+            this._listeners[Network.commands[cmd]] = listeners[Network.commands[cmd]] || function () {};
         }
     };
     
@@ -90,7 +102,6 @@ var jsr = (function(ns, global) {
     
     p._send = function _send (params) {
         if (this._socketOpen) {
-            console.log(JSON.stringify(params));
             this._socket.send(JSON.stringify(params));
         }
     };

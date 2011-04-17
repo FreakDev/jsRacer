@@ -1,10 +1,11 @@
 (function (jsr, global) {
-
+    
     var l = new jsr.Loader;
     var e = new jsr.Engine;    
     var c;
     var serverURL = 'ws://127.0.0.1:8000';
     var nt;
+    var NetworkCmd = jsr.Network.commands;
         
     function main () {
 
@@ -22,20 +23,37 @@
     
     function envReady () {
         
-        nt = new jsr.Network({url: serverURL});
+        var listeners = {};
+        listeners[NetworkCmd.ERROR] = function (obj) {
+            console.warn(obj);
+            alert(obj.message);
+        };
+        
+        nt = new jsr.Network({
+            url: serverURL, 
+            listeners: listeners
+        });
         
         showPopUp('form-game-name');
         
         ooLib.delay(function () {
-            var btn = document.querySelector('#popup input[type=button]');
-            var input = document.querySelector('#popup input[type=text]');
-            btn.onclick = function () {
-                
+            var btn = document.querySelector('#popup');
+            //var input = document.querySelector('#popup input[type=text]');
+            btn.onclick = function (evt) {
+                if ('button' == evt.target.type) {
+                    return popupListeners[evt.target.name]();
+                }
             };
         });
         
         
     }
+    
+    var popupListeners = {
+        'create-game': function () {
+            nt.apiCall(NetworkCmd.CREATE_GAME, {gameName: document.querySelector('#popup input[type=text]').value}, function () { alert('toto') });
+        }
+    };
     
     function showPopUp (popupName) {
         
