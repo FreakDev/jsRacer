@@ -38,6 +38,10 @@ p.getGameId = function getGameId () {
     return this.gameId;
 };
 
+p.getPlayersId = function getGameId () {
+    return this._playersId;
+};
+
 p.isStarted = function isStarted () {
     return this._started;
 };
@@ -50,13 +54,23 @@ var onMessage = function (conn, data) {
     server.emit(method, conn, msg);
 };
 
-var sendMessage = function (message, conn) {
-    sys.log('send');
-    if (typeof conn != 'undefined') {
-        conn.send(JSON.stringify(message));
-    } else {
+var forwardToHost = function (gameName, message) {
+    if (games[gameName]) {
+        var connId = games[gameName].getGameId();
+        server.send(connId, message);
+        return true;
     }
-};
+    return false;    
+}
+
+var forwardToPlayer = function (gameName, playerId, message) {
+    if (games[gameName] && games[gameName].getPlayersId()[playerId]) {
+        var connId = games[gameName].getPlayersId()[playerId];
+        server.send(connId, message);
+        return true;
+    }
+    return false;
+}
 
 // Handle WebSocket Requests
 server.addListener("connection", function(conn) {
@@ -88,19 +102,19 @@ server.addListener(Network.commands.CREATE_GAME, function (conn, opt) {
     
     if (!opt.gameName) {
         sys.log("Error : no name given");
-        sendMessage({id: -1, method: Network.commands.ERROR, args: {message: "no name given"}}, conn);
+        server.send(conn.id, {id: -1, method: Network.commands.ERROR, args: {message: "no name given"}});
         return;
     }
     
     if (games[opt.gameName]) {
         sys.log("Error : a game with the same name already exists");
-        sendMessage({id: -1, method: Network.commands.ERROR, args: {message: "a game with the same name already exists"}}, conn);        
+        server.send(conn.id, {id: -1, method: Network.commands.ERROR, args: {message: "a game with the same name already exists"}});
         return;
     }
     
     games[opt.gameName] = new Game (opt.gameName, conn.id);
 
-    sendMessage({id: callId, method: method, args: {}}, conn);
+    server.send(conn.id, {id: callId, method: method, args: {}});
 });
 
 server.listen(8000);

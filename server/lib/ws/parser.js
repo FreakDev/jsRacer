@@ -2,7 +2,7 @@
   The new onData callback for
   http.Server IncomingMessage
 -----------------------------------------------*/
-var sys = require("sys")
+var sys = require("util")
   , events = require("events")
   , Buffer = require("buffer").Buffer;
 

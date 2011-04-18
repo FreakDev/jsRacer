@@ -25,7 +25,7 @@
 /*-----------------------------------------------
   Requirements:
 -----------------------------------------------*/
-var sys = require("sys")
+var sys = require("util")
   , Url = require("url")
   , Events = require("events")
   , Buffer = require("buffer").Buffer

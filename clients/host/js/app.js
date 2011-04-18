@@ -1,11 +1,13 @@
 (function (jsr, global) {
     
     var l = new jsr.Loader;
-    var e = new jsr.Engine;    
+    var engine = new jsr.Engine;    
     var c;
     var serverURL = 'ws://127.0.0.1:8000';
     var nt;
     var NetworkCmd = jsr.Network.commands;
+    var gameName = '';
+    var playerMap = {};
         
     function main () {
 
@@ -25,8 +27,10 @@
         
         var listeners = {};
         listeners[NetworkCmd.ERROR] = function (obj) {
-            console.warn(obj);
             alert(obj.message);
+        };
+        listeners[NetworkCmd.REQUEST] = function (obj) {
+            addPlayer(l.getResource(obj.resName, obj.playerName));
         };
         
         nt = new jsr.Network({
@@ -38,7 +42,6 @@
         
         ooLib.delay(function () {
             var btn = document.querySelector('#popup');
-            //var input = document.querySelector('#popup input[type=text]');
             btn.onclick = function (evt) {
                 if ('button' == evt.target.type) {
                     return popupListeners[evt.target.name]();
@@ -46,12 +49,12 @@
             };
         });
         
-        
     }
     
     var popupListeners = {
         'create-game': function () {
-            nt.apiCall(NetworkCmd.CREATE_GAME, {gameName: document.querySelector('#popup input[type=text]').value}, function () { alert('toto') });
+            var gameTmpName = document.querySelector('#popup input[type=text]').value;
+            nt.apiCall(NetworkCmd.CREATE_GAME, {gameName: gameTmpName}, function () { gameName = gameTmpName; hidePopUp(); startGame(); });
         }
     };
     
@@ -78,15 +81,18 @@
     }    
     
     function startGame () {
-        e.init(c);
-        
-        var p = new jsr.Car(l.getResource('redcar'));
-        e.addPlayer(p);
-        
-        p.turnLeft();
-        p.accelerate();
-
-        e.run();        
+        engine.init(c);
+        engine.run();
+        showPopUp('waiting-for-players');
+    }
+    
+    function addPlayer (name, resource) {
+        var p = new jsr.Car(resource, name);
+        engine.addPlayer(p);
+        //playerMap[p.name] = 
+        nt.apiCall(NetworkCmd.PLAYER_ADDED, {gameName: gameName, })
+        // p.turnLeft();
+        // p.accelerate();        
     }
     
     global.onload = main;

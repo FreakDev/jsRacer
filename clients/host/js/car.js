@@ -1,14 +1,15 @@
 var jsr = (function (ns, global) {
     
     var c, Car;
-    c = Car= function Car (imgSprites) {
+    c = Car= function Car (imgSprites, name) {
         this.sprites;
         this.bmpSq;
         this.rotation;
         this.velocity;
 		this.thrust = 0;
 		this.vX = 0;
-		this.vY = 0;        
+		this.vY = 0;
+		this.name = name;
         
         this._initGraphics(imgSprites);
         this._initSettings();
@@ -16,7 +17,8 @@ var jsr = (function (ns, global) {
     var p = c.prototype;
     
 	Car.MAX_THRUST = 2;
-	Car.MAX_VELOCITY = 5;    
+	Car.MAX_VELOCITY = 5;
+	Car.ANGULAR_SPEED = 10;
 
     p._initGraphics = function _initGraphics (imgSprites) {
         this.sprites = new global.SpriteSheet(imgSprites, 24, 35, {normal: [0,0,false]});
@@ -42,11 +44,15 @@ var jsr = (function (ns, global) {
     };
     
     p.turnRight = function turnRight () {
-        this.bmpSq.rotation += 10;
+        if (this.thrust > 0) {
+            this.bmpSq.rotation += Car.ANGULAR_SPEED;
+        }
     };
     
     p.turnLeft = function turnLeft () {
-        this.bmpSq.rotation -= 10;
+        if (this.thrust > 0) {        
+            this.bmpSq.rotation -= Car.ANGULAR_SPEED;
+        }
     };
     
     p.accelerate = function accelerate () {
@@ -55,11 +61,8 @@ var jsr = (function (ns, global) {
         	this.thrust = Car.MAX_THRUST;
         }
         
-        this.vX += Math.sin(this.bmpSq.rotation*(-Math.PI/180))*this.thrust;
-        this.vY += Math.cos(this.bmpSq.rotation*(-Math.PI/180))*this.thrust;
-
-        this.vX = Math.min(Car.MAX_VELOCITY, Math.max(-Car.MAX_VELOCITY, this.vX));
-        this.vY = Math.min(Car.MAX_VELOCITY, Math.max(-Car.MAX_VELOCITY, this.vY));
+        this.vX += Math.cos(this.bmpSq.rotation * Math.PI / 180) * this.thrust;
+        this.vY += Math.sin(this.bmpSq.rotation * Math.PI / 180) * this.thrust;
     };
     
     p.decelerate = function decelerate () {
@@ -75,7 +78,7 @@ var jsr = (function (ns, global) {
 		this.bmpSq.y += this.vY;
 				
         if(this.thrust > 0) {
-            this.thrust -= 0.3;
+            this.thrust -= 0.1;
         } else {
             this.thrust = 0;
         }

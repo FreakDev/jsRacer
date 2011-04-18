@@ -36,10 +36,11 @@ var jsr = (function(ns, global) {
         ACCELERATE  : 'accelerate',      // gameId, playerId
         BRAKE       : 'brake',           // gameId, playerId
         TURN        : 'turn',            // gameId, playerId, angle
-        REQUEST     : 'request',         // gameId
+        REQUEST     : 'request',         // gameId        
         LIST_GAME   : 'listgame',        
                                         
         CREATE_GAME : 'creategame',      // gameName
+        PLAYER_ADDED: 'playeradded',        
         KILL_GAME   : 'killgame',        // gameId
         GAME_OVER   : 'gameover',        // gameId, playerId
         GAME_START  : 'gamestart',       // gameId

@@ -31,7 +31,7 @@ module.exports = Manager;
 
 function Manager(showDebug){
   if(showDebug) {
-    sys = require("sys");
+    sys = require("util");
     debug = function(){sys.error('\033[31mManager: ' + Array.prototype.join.call(arguments, ", ") + "\033[39m"); };
   } else {
     debug = function(){};

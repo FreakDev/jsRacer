@@ -25,7 +25,7 @@
 /*-----------------------------------------------
   Requirements:
 -----------------------------------------------*/
-var sys    = require("sys")
+var sys    = require("util")
   , http   = require("http")
   , events = require("events")
   , path   = require("path");
