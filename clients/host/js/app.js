@@ -25,30 +25,38 @@
     
     function envReady () {
         
-        var listeners = {};
-        listeners[NetworkCmd.ERROR] = function (obj) {
+        var apiListeners = {};
+        apiListeners[NetworkCmd.ERROR] = function (obj) {
             alert(obj.message);
         };
-        listeners[NetworkCmd.REQUEST] = function (obj) {
-            addPlayer(l.getResource(obj.resName, obj.playerName));
+        apiListeners[NetworkCmd.REQUEST] = function (obj) {
+            var playerId = addPlayer(l.getResource(obj.resName, obj.playerName));
+            nt.apiCall(NetworkCmd.REQUEST, {callId: obj.id, gameName: gameName, playerId: playerId});            
         };
         
+        var listeners = {};
+        listeners[jsr.Network.events.SOCKET_OPEN] = function () {
+            showPopUp('form-game-name');
+
+            ooLib.delay(function () {
+                var btn = document.querySelector('#popup');
+                btn.onclick = function (evt) {
+                    if ('button' == evt.target.type) {
+                        return popupListeners[evt.target.name]();
+                    }
+                };
+            });
+        };
+        
+        // listeners[jsr.Network.events.SOCKET_ERROR] = function () {}
+
+        // listeners[jsr.Network.events.SOCKET_CLOSE] = function () {}
+        
         nt = new jsr.Network({
-            url: serverURL, 
+            url: serverURL,
+            apiListeners: apiListeners,
             listeners: listeners
-        });
-        
-        showPopUp('form-game-name');
-        
-        ooLib.delay(function () {
-            var btn = document.querySelector('#popup');
-            btn.onclick = function (evt) {
-                if ('button' == evt.target.type) {
-                    return popupListeners[evt.target.name]();
-                }
-            };
-        });
-        
+        });        
     }
     
     var popupListeners = {
@@ -86,13 +94,9 @@
         showPopUp('waiting-for-players');
     }
     
-    function addPlayer (name, resource) {
+    function addPlayer (resource, name) {
         var p = new jsr.Car(resource, name);
-        engine.addPlayer(p);
-        //playerMap[p.name] = 
-        nt.apiCall(NetworkCmd.PLAYER_ADDED, {gameName: gameName, })
-        // p.turnLeft();
-        // p.accelerate();        
+        return engine.addPlayer(p);
     }
     
     global.onload = main;

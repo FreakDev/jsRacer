@@ -20,6 +20,8 @@ var jsr = (function (ns, global) {
         
         this.players.push(car);
         this.stage.addChild(car.getDisplayObject());
+        
+        return this.players.indexOf(car);
     };
 
     p.tick = function () {

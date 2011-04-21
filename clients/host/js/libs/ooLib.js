@@ -61,6 +61,22 @@
 	            fn.apply(scope, args);
 	        }, delay);
 		    
+		},
+		
+		isObjectEmpty: function (obj) {
+		    var count = 0;
+		    for (var p in obj) {
+		        count++;
+		        if (count !== 0) {
+		            break;
+		        }
+		    }
+		    
+		    if (count !== 0) {
+		        return false;
+		    } else {
+		        return true;
+		    }
 		}
 	};
     

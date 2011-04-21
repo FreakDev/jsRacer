@@ -13,7 +13,7 @@ var jsr = (function(ns, global) {
 	    this._socketUrl = options.url;
 	    this._socketConnect();
 
-        this._initListeners(options.listeners || {});
+        this._initListeners(options.listeners || {}, options.apiListeners || {});
 	    
 	    var isPhone = global.navigator.userAgent.match(/iPhone|Android/i) != null;
 	    
@@ -47,23 +47,30 @@ var jsr = (function(ns, global) {
         CRASH       : 'crash',           // gameId, playerId
         ERROR       : 'error'            
     };
+    
+    Network.events = {                
+        SOCKET_OPEN  : 'socketopen',
+        SOCKET_CLOSE : 'socketclose',
+        SOCKET_ERROR : 'socketerror'
+    };    
 
 	p._socketConnect  = function _socketConnect (url) {
         this._socket = new WebSocket(this._socketUrl);
-	    this._socketOpen = true;
 	};
     
 	p._socketOpenHandler  = function _socketOpenHandler (e) {
 	    this._socketOpen = true;
+	    this._listeners[Network.events.SOCKET_OPEN]();
 	};
 	
 	p._socketCloseHandler = function _socketCloseHandler (e) {
-	    this._socketOpen = false;	    
-	    alert('connection closed');
+	    this._socketOpen = false;
+        this._listeners[Network.events.SOCKET_CLOSE]();
 	};
 	
 	p._socketErrorHandler = function _socketErrorHandler (e) {
-	    alert('socket error');
+	    this._socketOpen = false;
+	    this._listeners[Network.events.SOCKET_ERROR]();
 	};
 	
 	p._socketMessageHandler = function _socketMessageHandler (e) {
@@ -78,13 +85,16 @@ var jsr = (function(ns, global) {
 	        }
 	    }
 	    
-	    console.log(this._listeners);
 	    this._listeners[method](msg.args);
 	};
     
-    p._initListeners = function _initListeners(listeners) {
+    p._initListeners = function _initListeners(listeners, apiListeners) {
         for (var cmd in Network.commands) {
-            this._listeners[Network.commands[cmd]] = listeners[Network.commands[cmd]] || function () {};
+            this._listeners[Network.commands[cmd]] = apiListeners[Network.commands[cmd]] || function () {};
+        }
+        
+        for (var cmd in Network.events) {
+            this._listeners[Network.events[cmd]] = listeners[Network.events[cmd]] || function () {};
         }
     };
     
@@ -93,12 +103,23 @@ var jsr = (function(ns, global) {
         // if (typeof Network.commands[method] == 'undefined') {
         //     throw new Error(['unknow method (', method, ') in API call'].join(''));
         // }
-            
-        var callId = [method, Date.now()].join('-');
+        var callId;
+        
+        // you may declare a callId - use with extrem caution
+        if (args.callId) {
+            callId = args.callId;
+            delete(args.callId);
+        } else {
+            callId = [method, Date.now()].join('-');
+        }
             
         this._apiCalls[callId] = callback != undefined ? callback : null;
         
-        this._send({id: callId, method: method, args: args});
+        var obj = {id: callId, method: method};
+        if (!ooLib.isObjectEmpty(args)) {
+            obj['args'] = args;
+        }
+        this._send(obj);
     };
     
     p._send = function _send (params) {
